@@ -15,10 +15,6 @@ public class MainProcess : MonoBehaviour
     [SerializeField] TMP_InputField textFreqency;
     [SerializeField] TextMeshProUGUI textStatus;
     private UdpClient udpClient;
-    private Vector3 acce;
-    private Vector3 rot;
-    private Vector3 atit;
-    private Vector3 grav;
     Vector3 angularVelocity = new(0, 0, 0);
     Vector3 acceleration = new(0, 0, 0);
     Quaternion attitudeSensor = new(0, 0, 0, 0);
@@ -47,12 +43,12 @@ public class MainProcess : MonoBehaviour
     {
         try
         {
-            string ipAddress = string.IsNullOrEmpty(textAddress.text.ToString()) ? "192.168.1.113" : textAddress.text;
-            string portText = string.IsNullOrEmpty(textPort.text) ? "12345" : textPort.text;
+            string ipAddress = textAddress.text;
+            string portText = textPort.text;
 
             int port = int.Parse(portText);
-            //int port = int.Parse(portText);
             bool isConnected = ConnectToServer(ipAddress, port);
+
 
             if (isConnected)
             {
@@ -66,15 +62,14 @@ public class MainProcess : MonoBehaviour
         }
         catch (Exception ex)
         {
-            Debug.Log(ex);
-            textStatus.text = $"B³¹d: {ex.Message}";
+            textStatus.text = $"B³¹d: Error 001";
         }
     }
     public void ConnectButtonToMe_Clicked()
     {
         try
         {
-            string ipAddress = "192.168.1.106";
+            string ipAddress = "192.168.1.194";
 
             int port = 12345;
             bool isConnected = ConnectToServer(ipAddress, port);
@@ -149,7 +144,7 @@ public class MainProcess : MonoBehaviour
     {
         //string IntervalString = string.IsNullOrEmpty(textFreqency.text) ? "100" : textFreqency.text;
         //int IntervalMs = int.Parse(IntervalString);
-        int IntervalMs = 100;
+        int IntervalMs = 50;
         while (isSendingData)
         {
             try
