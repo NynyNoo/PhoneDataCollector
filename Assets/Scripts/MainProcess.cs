@@ -3,10 +3,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Android;
 using Gyroscope = UnityEngine.InputSystem.Gyroscope;
 public class MainProcess : MonoBehaviour
 {
@@ -25,8 +23,7 @@ public class MainProcess : MonoBehaviour
 
     private void Start()
     {
-        gyr = Input.gyro;
-        gyr.enabled = true;
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
         InputSystem.EnableDevice(Gyroscope.current);
         InputSystem.EnableDevice(Accelerometer.current);
         InputSystem.EnableDevice(AttitudeSensor.current);
@@ -37,57 +34,35 @@ public class MainProcess : MonoBehaviour
         angularVelocity = Gyroscope.current.angularVelocity.ReadValue();
         acceleration = Accelerometer.current.acceleration.ReadValue();
         attitudeSensor = AttitudeSensor.current.attitude.ReadValue();
-        //textStatus.text=Input.gyro.attitude.ToString();
     }
     public void ConnectButton_Clicked()
     {
-        try
+        if (!isSendingData)
         {
-            string ipAddress = textAddress.text;
-            string portText = textPort.text;
-
-            int port = int.Parse(portText);
-            bool isConnected = ConnectToServer(ipAddress, port);
-
-
-            if (isConnected)
+            try
             {
-                textStatus.text = "Po³¹czono z serwerem";
-                StartSendingData();
-            }
-            else
-            {
-                textStatus.text = "B³¹d po³¹czenia z serwerem";
-            }
-        }
-        catch (Exception ex)
-        {
-            textStatus.text = $"B³¹d: Error 001";
-        }
-    }
-    public void ConnectButtonToMe_Clicked()
-    {
-        try
-        {
-            string ipAddress = "192.168.1.194";
+                string ipAddress = textAddress.text;
+                string portText = textPort.text;
 
-            int port = 12345;
-            bool isConnected = ConnectToServer(ipAddress, port);
+                int port = int.Parse(portText);
+                bool isConnected = ConnectToServer(ipAddress, port);
 
 
-            if (isConnected)
-            {
-                textStatus.text = "Po³¹czono z serwerem";
-                StartSendingData();
+                if (isConnected)
+                {
+                    textStatus.text = "Po³¹czono z serwerem";
+                    isSendingData = true;
+                    StartSendingData();
+                }
+                else
+                {
+                    textStatus.text = "B³¹d po³¹czenia z serwerem";
+                }
             }
-            else
+            catch (Exception ex)
             {
-                textStatus.text = "B³¹d po³¹czenia z serwerem";
+                textStatus.text = $"B³¹d: Error 001";
             }
-        }
-        catch (Exception ex)
-        {
-            textStatus.text = $"B³¹d: Error 001";
         }
     }
     public void DisconnectButton_Clicked()
@@ -96,6 +71,7 @@ public class MainProcess : MonoBehaviour
         {
             StopSendingData();
             DisconnectFromServer();
+            isSendingData = false;
             textStatus.text = "Roz³¹czono z serwerem";
         }
         catch (Exception ex)
@@ -142,20 +118,17 @@ public class MainProcess : MonoBehaviour
     }
     private void SendDataLoop()
     {
-        //string IntervalString = string.IsNullOrEmpty(textFreqency.text) ? "100" : textFreqency.text;
-        //int IntervalMs = int.Parse(IntervalString);
-        int IntervalMs = 50;
+        int freq = int.Parse(textFreqency.text);
         while (isSendingData)
         {
             try
             {
                 SendDataToServer(converter());
-                Thread.Sleep(IntervalMs);
+                Thread.Sleep(freq);
             }
             catch (Exception ex)
             {
                 textStatus.text += ex.Message;
-                //Debug.Log("bug");
             }
         }
     }
@@ -169,21 +142,4 @@ public class MainProcess : MonoBehaviour
             " " + DateTime.Now.ToString(format);
         return data;
     }
-    /*string converter2()
-    {
-        string data;
-
-        data =
-            "X: " + acceleration.x + ", Y: " + acceleration.y + ", Z: " + acceleration.z + ";" +
-            " X: " + angularVelocity.x + ", Y: " + angularVelocity.y + ", Z: " + angularVelocity.z + ";" +
-            " " + DateTime.Now.ToString(format);
-        return data;
-    }*/
-    /*string converter()
-    {
-        string data;
-
-        data = "X: " + acc.x + ", Y: " + acc.y + ", Z: " + acc.z + "; X: " + gyr.x + ", Y: " + gyr.y + ", Z: " + gyr.z + "; " + DateTime.Now.ToString(format);
-        return data;
-    }*/
 }
