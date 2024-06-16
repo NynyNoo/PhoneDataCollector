@@ -5,6 +5,8 @@ using System.Threading;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Unity.VisualScripting;
+using UnityEngine.InputSystem.Android;
 using Gyroscope = UnityEngine.InputSystem.Gyroscope;
 public class MainProcess : MonoBehaviour
 {
@@ -19,7 +21,6 @@ public class MainProcess : MonoBehaviour
     private bool isSendingData = false;
     private Thread sendingThread;
     string format = "H:mm:ss.fff";
-    UnityEngine.Gyroscope gyr;
 
     private void Start()
     {
